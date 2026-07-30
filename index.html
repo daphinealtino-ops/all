@@ -42,6 +42,35 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
 .view{display:none;padding-top:28px;}
 .view.active{display:block;}
 
+
+/* ── ASSOCIATION HERO ── */
+.assoc-hero{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);
+  border-radius:14px;padding:28px 32px;color:#fff;
+  box-shadow:0 4px 16px rgba(11,31,58,.15);margin-bottom:20px;
+}
+.assoc-hero-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px;}
+.assoc-pct-block{display:flex;align-items:flex-end;gap:12px;}
+.assoc-pct{font-size:64px;font-weight:800;letter-spacing:-.03em;line-height:1;color:#fff;}
+.assoc-pct-label{font-size:13px;color:#AEC2DD;margin-bottom:10px;line-height:1.5;max-width:160px;}
+.assoc-pct-label strong{color:#fff;display:block;font-size:15px;margin-bottom:2px;}
+.assoc-breakdown{display:flex;gap:28px;flex-wrap:wrap;}
+.assoc-item{border-left:3px solid rgba(255,255,255,.2);padding-left:16px;}
+.assoc-item .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#8FA6C4;font-weight:700;}
+.assoc-item .val{font-size:20px;font-weight:800;margin-top:3px;}
+.assoc-item .val.green{color:#5DD4A8;}
+.assoc-item .val.orange{color:#E07A3A;}
+.assoc-item .val.white{color:#fff;}
+.assoc-item .sub{font-size:11px;color:#8FA6C4;margin-top:2px;}
+.assoc-bar-wrap{margin-top:20px;}
+.assoc-bar{height:14px;border-radius:7px;display:flex;overflow:hidden;background:rgba(255,255,255,.1);}
+.assoc-bar .seg.manual-ready{background:#5DD4A8;}
+.assoc-bar .seg.auto{background:#4A9FE0;}
+.assoc-bar .seg.pending{background:#E07A3A;}
+.assoc-bar-legend{display:flex;gap:20px;margin-top:8px;font-size:11px;font-weight:600;flex-wrap:wrap;}
+.assoc-bar-legend span{display:inline-flex;align-items:center;gap:5px;}
+.ldot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+
 /* ── SITE VIEW ── */
 .kpi-section{margin-bottom:24px;}
 .kpi-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
@@ -283,6 +312,7 @@ tbody tr:hover{background:#FAFBFC;}
 
   <!-- ═══ GLOBAL VIEW ═══ -->
   <div class="view" id="view-GLOBAL">
+    <div class="assoc-hero" id="assocHero"></div>
     <div class="sec-title">Receita Total LATAM em USD</div>
     <div class="latam-card" id="latamCard"></div>
 
@@ -429,6 +459,54 @@ function switchTab(site){
 // ── GLOBAL VIEW ─────────────────────────────────────────────
 function renderGlobal(){
   const r = GLOBAL_DATA.regional;
+
+  // ── Association Hero ──────────────────────────────────────
+  const associated  = r.ready_usd + r.auto_usd;
+  const pctAssoc    = ((associated / r.total_usd)*100).toFixed(1);
+  const pctPend     = ((r.pending_usd / r.total_usd)*100).toFixed(1);
+  const pctMReady   = ((r.ready_usd / r.total_usd)*100).toFixed(1);
+  const pctAuto     = ((r.auto_usd / r.total_usd)*100).toFixed(1);
+  document.getElementById('assocHero').innerHTML=`
+    <div class="assoc-hero-inner">
+      <div class="assoc-pct-block">
+        <div class="assoc-pct">${pctAssoc}%</div>
+        <div class="assoc-pct-label">
+          <strong>Receita Associada</strong>
+          da receita total de ${usdK(r.total_usd)} já está associada a invoice
+        </div>
+      </div>
+      <div class="assoc-breakdown">
+        <div class="assoc-item">
+          <div class="lbl">✓ Manual Ready to Bill</div>
+          <div class="val green">${usdK(r.ready_usd)}</div>
+          <div class="sub">${usd(r.ready_usd)} · ${r.ready_count} ordens</div>
+        </div>
+        <div class="assoc-item">
+          <div class="lbl">✓ Automático (Account + Advertiser)</div>
+          <div class="val" style="color:#4A9FE0">${usdK(r.auto_usd)}</div>
+          <div class="sub">${usd(r.auto_usd)} · ${r.auto_count} ordens</div>
+        </div>
+        <div class="assoc-item">
+          <div class="lbl">⚠ Manual Pendente</div>
+          <div class="val orange">${usdK(r.pending_usd)}</div>
+          <div class="sub">${usd(r.pending_usd)} · ${r.pending_count} ordens</div>
+        </div>
+      </div>
+    </div>
+    <div class="assoc-bar-wrap">
+      <div class="assoc-bar">
+        <div class="seg manual-ready" style="width:${pctMReady}%"></div>
+        <div class="seg auto"         style="width:${pctAuto}%"></div>
+        <div class="seg pending"      style="width:${pctPend}%"></div>
+      </div>
+      <div class="assoc-bar-legend">
+        <span><i class="ldot" style="background:#5DD4A8"></i>Manual Ready to Bill ${pctMReady}%</span>
+        <span><i class="ldot" style="background:#4A9FE0"></i>Automático ${pctAuto}%</span>
+        <span><i class="ldot" style="background:#E07A3A"></i>Manual Pendente ${pctPend}%</span>
+      </div>
+    </div>
+  `;
+
 
   // LATAM card
   document.getElementById('latamCard').innerHTML=`
